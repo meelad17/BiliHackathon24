@@ -1,0 +1,107 @@
+GROUP 17 – SCENARIO 1 – TEMPERATURE MEASUREMENTS IN ORCHARDS
+Sustainable farming has become more crucial than ever, especially in terms of protecting crops from increasingly occuring environmental threats like unpredictable late-frosts.
+Orchard farmers, particularly those cultivating apples in colder climates (in our case; im Alten Land), face severe challenges as late-season frosts can damage and even destroy crops, leading to heavily reduced yields and threatening the farmes ability to compet in the free market economy.
+
+Brief summary; Our learning goal.
+With the hackathon 2024 on „Project Samson“, we aimed to get hands on experiences in designing, setting up and implementing a smart frost protection system using easy tools like Arudiono sensors, paired with a local RPi4 server connection and graphical interfaces (temperature measurements f.e). Our goal is to:
+•	Learn how to configure and calibrate Arduino sensors to provide precise temperature monitoring, in our case for local orchards.
+•	Problem solving; Analyzing and solving network / connectivity problems.
+•	Collaboration; Improving our intern teamwork in order to strengthen our skills in managing project timelines, resource allocation, and task distribution within the team.
+•	Tech-integration; Gain practical experience in integrating IoT devices, sensors, data analysis/visualisation tools, and automation systems.
+
+ 
+
+
+
+
+
+
+
+
+
+DIY - PROBLEM DEFINITION
+In order to define and clarify the problem, we have used the 5Ws Method. The target of our problem definition in the Case of Project Samson is, to fully understand the issues and difficulties farmers face with frost protection in their apple orchards, especially focusing on the inefficiencies and wasted potentials in current systems.
+Who: 
+Primarily affected persons: Orchard farmers who are cultivating apples and comparable fruits in colder regions. (especially affected by late frosts in March / April f.e.)
+Secondarily affected persons: Agricultural consultants, tech providers (such as IoT companies), water-/ & environmental organizations (Plus inderectly consumers affected by higher product-costs resulting from reduced yields.)
+
+What: 
+The main problem is frost damage to apple crops, which can lead to significant economic losses, reduced yields, and compromised quality of the apples. Especially during the critical stages of bud- and flower growth in orchards, the so called „late frost“ is extremely dangerous if not counteracted. The current frost protection method is inefficient, consumes high amounts of water and energy due to inaccurate weather forecasting.
+
+
+When:
+During spring, at night and seasonally reoccuring: Frost typically occurs during the critical growth periods for apple trees, particularly when crops and buds are vulnerable. Late frost is most likely to happen overnight, especially during clear and calm nights. (Late-) Frosts are most dangerous from late winter to early spring, but predicting specific frost events is difficult because of microclimates within orchards that the usual weather stations do not capture or predict. These months (March/April) are the greatest threat to tree blossoms.
+
+Where:
+Primarily in cooler regions of northern Europe, North America, and other temperate zones, where late frosts are unpredictable. Our project focusses on the northern part of Germany, where this phenomen often occurs
+Temperatures may also vary significantly because of differences in elevation, sun exposure, or proximity to water (Altes Land). Additionally, certain microclimates may be dangerous. For example; Frost is more intense in low-lying areas or places where cold air accumulates.
+
+Why: 
+Frost damage does not only reduce crop yields for the season, but also compromises the long-term health of trees. Inaccurate frost predictions often cause premature activation of the frost protection systems, which is resulting in excessive and unnecessary water usage (up to 40,000 liters per hour per hectare) and increased energy use. The environmental impact is substantial due to over-extraction of water and fuel consumption. Frost damage can also lead to financial difficulties for farmers.
+
+
+
+To take a deeper dive into the potential problems and difficulties, we have designed a „causes and effects“ list (problem tree).
+The core problem is, that late-frost protection methods in orchards are inefficient and resource intense
+Causes („root level“)
+- Existing weather prediction methods and tools often do not provide accurate frost alerts. Weather stations provide too unspecific information. Farmers rely on regional weather forecasts, which most likely are failing to consider the important nuances of microclimates.
+
+- Farmers are required to manually activate their frost protection systems, relying on their own judgments and unreliable data collected from the weather forecasts.
+
+- Frost protection primarily relies on water intensive methods, like sprinkler systems. These systems quickly consume too high water amounts, if not used properly.
+
+- Energy inefficient approaches, f.e. heaters, fans or similar contribute to immense high operating costs.
+
+Effects („consequence level“)
+- Crop loss due to frost damage; overused, delayed or ineffective frost protection methods will quickly lead to irreparable damage of  fruit blossoms and accordingly to heavy yield reduction.
+- Increase of operational costs; wasted water and fuel contribute to higher production costs, impacting profitability
+- Loss of the ability to keep up with market-competition (-> eventual risk of bankruptcy, at least financial difficulties)
+- Environmental degradation; Overextraction of water from local sources is leading to depletion of groundwaters. + Higher carbon emissions from increased fuel use. ->Wastage of resources
+
+
+
+
+
+
+
+
+Walt Disney Method („ideate your solution“)
+ 1. Dreamer: In order to collect and analyze IoT data for the Samson project, we envisioned a smooth interface between the Arduino and Raspberry Pi. It would be easier to access the Raspberry Pi hosted on a static IP with a reliable RDP connection. Our goal with Grafana was to produce stunning real-time data visualizations. We looked at a number of choices and came to the conclusion that this was the most dependable and successful method. In order to facilitate smooth data processing and storage, it also connected the Arduino with InfluxDB, guaranteeing a completely integrated solution for our IoT needs
+2. Realist: The Raspberry Pi setup turned out to be trickier than expected. At first, it took us two tries to properly download and configure the image. In addition, port conflicts and permission concerns arose during the Docker container setup for Grafana, Prometheus, and Node-RED. Since the Arduino lacked Wi-Fi, the project became more difficult and required direct USB connections. Troubleshooting was also required in order to create a dependable connection to InfluxDB for data collection. In the end, though, we were unable to use Grafana for data visualization or Prometheus for the necessary monitoring.
+
+ 3. Critics: The Samson project came with a number of challenges. The Grafana port conflict on port 3000 had to be manually changed, which took a long time. Because the Arduino didn't have Wi-Fi at first, we had inconsistent connectivity between the two devices, which required a lot of wiring and setting troubleshooting. Unexpected compatibility problems also arose during the InfluxDB connection setup for the Arduino data. Most of the things that we thought were easy were actually 10 times harder. With more time, we surly would have found a way
+
+Problems Faced:
+1)Port conflicts; Grafana tool attempted to use a port that was already in use, necessitating a manual config change to fix the problem. 
+2)Network instability; After experiencing some difficulties with VNC remote access, we decided to move to RDP in order to improve stability. There were more processes involved and complexity in the static IP assignment
+3)Arduino Integration; Because the Arduino lacks Wi-Fi, it was more difficult than expected to establish a dependable connection for data transmission from the Arduino to InfluxDB.
+
+
+ 
+ 
+
+
+
+
+
+
+Prototype / Solution Approach
+1) Raspberry Pi image: First, we download the Raspberry Pi image and configure
+the system. We then switched from VNC to RDP.
+2) Static IP: A static IP address was created to ensure a reliable connection. This is
+necessary for distributing the ports for the applications used.
+3) Docker setup: We developed Docker containers for Grafana, Node-RED and
+InfluxDB and defined them in a stack with docker-compose.yml.
+4) Port conflicts: Since port 3000 was already occupied, there was a port conflict
+when Grafana was started. We fixed the problem by either changing the port or
+stopping the disruptive process.
+5) Arduino integration: Since the Arduino didn't had Wi-Fi, integrating it was 
+difficult. We used USB to link it to the Raspberry Pi after connecting it to sensors. 
+This required multiple modifications to the connection protocols in order to 
+guarantee that the sensor data was successfully transferred to the Raspberry Pi. 
+In order to make sure that the measured values were properly processed before 
+being transferred to the Raspberry Pi, we also had to troubleshoot the sensor 
+code.
+6) Service Integration: While our goal was to save the metrics that the Arduino 
+collected in InfluxDB so that they could be shown in Grafana, we ran into issues 
+that prevented complete integration.
