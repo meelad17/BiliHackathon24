@@ -1,0 +1,70 @@
+import serial
+from influxdb_client import InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
+import re
+import time
+
+# Arduino serielle Schnittstelle
+serial_port = '/dev/ttyACM0'  
+baud_rate = 9600  
+
+# InfluxDB-Verbindung
+bucket = "temperature"  
+org = "myorg"            
+token = "N4xUWAAHp63Lt-QNnDx_dZRQ6JvRXcM7R9ntjF3kYYx64fog0ar-y7tjN4XKaTeEjYCbbyD4tm4yFasGSUYAWA==   
+url = "http://192.168.178.130:8086"  # URL  InfluxDB
+
+# Initialisiere InfluxDB-Client
+client = InfluxDBClient(url=url, token=token, org=org)
+write_api = client.write_api(write_options=SYNCHRONOUS)
+
+# Serielle Verbindung mit dem Arduino
+ser = serial.Serial(serial_port, baud_rate, timeout=1)
+time.sleep(2)  # Warten, bis die serielle Verbindung hergestellt ist
+
+temperature = None
+humidity = None
+
+try:
+    while True:
+        if ser.in_waiting > 0:
+            line = ser.readline().decode('utf-8').strip()
+            print(f"Arduino-Daten: {line}")
+
+            # Überprüfen, ob die Zeile Temperatur oder Luftfeuchtigkeit enthält
+            if "Temperatur:" in line:
+                try:
+                    temperature = float(re.search(r'Temperatur:\s*([0-9.]+)\s*°C', line).group(1))
+                except (ValueError, AttributeError):
+                    print("Fehler beim Verarbeiten der Temperatur.")
+
+            elif "Luftfeuchtigkeit:" in line:
+                try:
+                    humidity = float(re.search(r'Luftfeuchtigkeit:\s*([0-9.]+)\s*%', line).group(1))
+                except (ValueError, AttributeError):
+                    print("Fehler beim Verarbeiten der Luftfeuchtigkeit.")
+
+            # Wenn sowohl Temperatur als auch Luftfeuchtigkeit gelesen wurden, in InfluxDB schreiben
+            if temperature is not None and humidity is not None:
+                try:
+                    point = Point("sensor_data") \
+                        .tag("device", "arduino") \
+                        .field("temperature", temperature) \
+                        .field("humidity", humidity) \
+                        .time(time.time_ns())
+                    
+                    write_api.write(bucket=bucket, org=org, record=point)
+                    print(f"Daten erfolgreich in InfluxDB geschrieben: Temperatur={temperature}°C, Luftfeuchtigkeit={humidity}%")
+                    
+                    # Zurücksetzen der Werte für die nächste Messung
+                    temperature = None
+                    humidity = None
+                except Exception as e:
+                    print(f"Fehler beim Speichern in InfluxDB: {e}")
+
+        time.sleep(1)  # Kurze Pause, um die CPU-Belastung zu reduzieren
+except KeyboardInterrupt:
+    print("Skript beendet")
+finally:
+    ser.close()
+    client.close()
